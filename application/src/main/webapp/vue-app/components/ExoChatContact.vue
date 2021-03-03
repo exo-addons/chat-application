@@ -36,7 +36,7 @@
 </template>
 
 <script>
-import { getUserAvatar, getSpaceAvatar, getUserProfileLink, getSpaceProfileLink, escapeHtml } from '../chatServices';
+import { getUserAvatar, getSpaceAvatar, getUserProfileLink, getSpaceByPrettyName, escapeHtml } from '../chatServices';
 import {chatConstants} from '../chatConstants';
 
 export default {
@@ -122,7 +122,8 @@ export default {
         donotdisturb: this.$t('exoplatform.chat.donotdisturb'),
         invisible: this.$t('exoplatform.chat.invisible'),
         offline: this.$t('exoplatform.chat.button.offline')
-      }
+      },
+      spaceContact: {},
     };
   },
   computed: {
@@ -166,11 +167,15 @@ export default {
     isActive() {
       return this.type === 'u' && !this.isEnabled ? 'inactive' : 'active';
     },
+    spaceGroupUri() {
+      return this.spaceContact && this.spaceContact.groupId && this.spaceContact.groupId.replace(/\//g, ':');
+    },
     contactUrl() {
       if (this.type === 'u') {
         return getUserProfileLink(this.userName);
-      } else if (this.type === 's' && this.groupId) {
-        return getSpaceProfileLink(this.groupId, this.prettyName);
+      } else if (this.type === 's') {
+        const spaceId = this.name.toLowerCase().split(' ').join('_');
+        return `${eXo.env.portal.context}/g/${this.spaceGroupUri}/${spaceId}`;
       }
       return '#';
     }
@@ -179,6 +184,9 @@ export default {
     document.addEventListener(chatConstants.EVENT_DISCONNECTED, this.setOffline);
     document.addEventListener(chatConstants.EVENT_CONNECTED, this.setOnline);
     document.addEventListener(chatConstants.EVENT_RECONNECTED, this.setOnline);
+    if (this.type === 's') {
+      this.getSpace();
+    }
   },
   destroyed() {
     document.removeEventListener(chatConstants.EVENT_DISCONNECTED, this.setOffline);
@@ -194,6 +202,16 @@ export default {
     },
     setOffline() {
       this.isOnline = false;
+<<<<<<< HEAD
+=======
+    },
+    getSpace() {
+      return getSpaceByPrettyName(this.name).then((space) => {
+        if (space && space.identity) {
+          this.spaceContact = space;
+        }
+      });
+>>>>>>> 5e6a97bd (37051 : fix redirect URL after clicking on the space logo (#234))
     }
   }
 };
