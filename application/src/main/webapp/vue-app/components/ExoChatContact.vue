@@ -36,7 +36,7 @@
 </template>
 
 <script>
-import { getUserAvatar, getSpaceAvatar, getUserProfileLink, getSpaceProfileLink, escapeHtml } from '../chatServices';
+import { getUserAvatar, getSpaceAvatar, getUserProfileLink, getSpaceByPrettyName, escapeHtml } from '../chatServices';
 import {chatConstants} from '../chatConstants';
 
 export default {
@@ -122,7 +122,8 @@ export default {
         donotdisturb: this.$t('exoplatform.chat.donotdisturb'),
         invisible: this.$t('exoplatform.chat.invisible'),
         offline: this.$t('exoplatform.chat.button.offline')
-      }
+      },
+      spaceGroupUri : '',
     };
   },
   computed: {
@@ -169,8 +170,8 @@ export default {
     contactUrl() {
       if (this.type === 'u') {
         return getUserProfileLink(this.userName);
-      } else if (this.type === 's' && this.groupId) {
-        return getSpaceProfileLink(this.groupId, this.prettyName);
+      } else if (this.type === 's') {
+        return this.getSpaceURI() ;
       }
       return '#';
     }
@@ -194,6 +195,21 @@ export default {
     },
     setOffline() {
       this.isOnline = false;
+<<<<<<< HEAD
+=======
+    },
+    getSpaceURI() {
+      const spaceId = this.name.toLowerCase().split(' ').join('_');
+      getSpaceByPrettyName(this.name).then((space) => {
+        if (space && space.identity) {
+          this.spaceGroupUri= space.groupId.replace(/\//g, ':');
+        }
+      });
+<<<<<<< HEAD
+>>>>>>> 5e6a97bd (37051 : fix redirect URL after clicking on the space logo (#234))
+=======
+      return `${eXo.env.portal.context}/g/${this.spaceGroupUri}/${spaceId}`;
+>>>>>>> c7982416 (TASK-37051: Refix redirect URL after clicking on the space logo (#242))
     }
   }
 };
